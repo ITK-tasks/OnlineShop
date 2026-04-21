@@ -40,11 +40,6 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<String> createOrder(@RequestBody String json) throws Exception {
         OrderDTO dto = jsonUtil.fromJson(json, OrderDTO.class);
-        Set<ConstraintViolation<OrderDTO>> violations = validator.validate(dto);
-        if (!violations.isEmpty()) {
-            String msg = violations.iterator().next().getMessage();
-            throw new BadRequestException(msg);
-        }
         Order order = service.create(dto);
         OrderResponseDTO response = mapperUtil.toOrderResponseDTO(order);
         return ResponseEntity.status(HttpStatus.CREATED)
