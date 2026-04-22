@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: author
+      changes:
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: name, value: "Ноутбук Apple MacBook Air" }
+              - column: { name: description, value: "13.3 дюйма, 8GB RAM, 256GB SSD" }
+              - column: { name: price, valueNumeric: 999.99 }
+              - column: { name: quantity_in_stock, valueNumeric: 10 }
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: name, value: "Смартфон Samsung Galaxy S23" }
+              - column: { name: description, value: "6.1 дюйма, 8GB RAM, 128GB" }
+              - column: { name: price, valueNumeric: 799.99 }
+              - column: { name: quantity_in_stock, valueNumeric: 15 }
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: name, value: "Наушники Sony WH-1000XM5" }
+              - column: { name: description, value: "Беспроводные, шумоподавление" }
+              - column: { name: price, valueNumeric: 349.99 }
+              - column: { name: quantity_in_stock, valueNumeric: 25 }
+
+        - insert:
+            tableName: customers
+            columns:
+              - column: { name: first_name, value: "Иван" }
+              - column: { name: last_name, value: "Петров" }
+              - column: { name: email, value: "ivan@example.com" }
+              - column: { name: contact_number, value: "+7 (999) 123-45-67" }
+        - insert:
+            tableName: customers
+            columns:
+              - column: { name: first_name, value: "Мария" }
+              - column: { name: last_name, value: "Сидорова" }
+              - column: { name: email, value: "maria@example.com" }
+              - column: { name: contact_number, value: "+7 (999) 765-43-21" }
