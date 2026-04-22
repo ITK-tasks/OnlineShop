@@ -1,5 +1,6 @@
 package itk.onlineshop.controller;
 
+import itk.onlineshop.dto.PageResponse;
 import itk.onlineshop.dto.ProductDTO;
 import itk.onlineshop.model.Product;
 import itk.onlineshop.service.ProductService;
@@ -11,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -45,19 +45,21 @@ class ProductControllerTest {
     private ProductController productController;
 
     @Test
-    void getAllProducts_ShouldReturnList() throws Exception {
-        Product product = new Product();
-        product.setProductId(1L);
-        product.setName("Тест");
-        ProductDTO dto = new ProductDTO();
-        dto.setProductId(1L);
-        dto.setName("Тест");
-        when(productService.getAll()).thenReturn(List.of(product));
-        when(mapperUtil.toDto(any(Product.class))).thenReturn(dto);
-        when(jsonUtil.toJson(anyList())).thenReturn("[{\"productId\":1,\"name\":\"Тест\"}]");
-        String result = productController.getAllProducts();
+    void getAllProducts_ShouldReturnPageResponse() throws Exception {
+        PageResponse<ProductDTO> pageResponse = new PageResponse<>(
+                List.of(new ProductDTO()),
+                0,
+                10,
+                1,
+                1
+        );
+        when(productService.getAll(0, 10)).thenReturn(pageResponse);
+        when(jsonUtil.toJson(pageResponse)).thenReturn("{\"content\":[]}");
+        String result = productController.getAllProducts(0, 10);
         assertNotNull(result);
-        verify(productService, times(1)).getAll();
+        assertEquals("{\"content\":[]}", result);
+        verify(productService, times(1)).getAll(0, 10);
+        verify(jsonUtil, times(1)).toJson(pageResponse);
     }
 
     @Test

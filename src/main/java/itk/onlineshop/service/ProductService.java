@@ -1,9 +1,15 @@
 package itk.onlineshop.service;
 
+import itk.onlineshop.dto.PageResponse;
+import itk.onlineshop.dto.ProductDTO;
 import itk.onlineshop.exception.NotFoundException;
 import itk.onlineshop.model.Product;
 import itk.onlineshop.repository.ProductRepository;
+import itk.onlineshop.util.MapperUtil;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,13 +19,26 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository repo;
+    private final MapperUtil mapperUtil;
 
-    public ProductService(ProductRepository repo) {
+
+    public ProductService(ProductRepository repo, MapperUtil mapperUtil) {
         this.repo = repo;
+        this.mapperUtil = mapperUtil;
     }
 
-    public List<Product> getAll() {
-        return repo.findAll();
+    public PageResponse<ProductDTO> getAll(int page, int size) {
+        Page<Product> productPage = repo.findAll(PageRequest.of(page, size));
+        List<ProductDTO> dtos = productPage.getContent().stream()
+                .map(mapperUtil::toDto)
+                .toList();
+        return new PageResponse<>(
+                dtos,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages()
+        );
     }
 
     public Product get(Long id) {

@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
@@ -29,24 +29,18 @@ public class ProductController {
 
     private final ProductService service;
     private final JsonUtil jsonUtil;
-    private final Validator validator;
     private final MapperUtil mapperUtil;
 
-    public ProductController(ProductService service, JsonUtil jsonUtil,
-                             Validator validator, MapperUtil mapperUtil) {
+    public ProductController(ProductService service, JsonUtil jsonUtil, MapperUtil mapperUtil) {
         this.service = service;
         this.jsonUtil = jsonUtil;
-        this.validator = validator;
         this.mapperUtil = mapperUtil;
     }
 
     @GetMapping
-    public String getAllProducts() throws Exception {
-        List<Product> products = service.getAll();
-        List<ProductDTO> dtos = products.stream()
-                .map(mapperUtil::toDto)
-                .toList();
-        return jsonUtil.toJson(dtos);
+    public String getAllProducts(@RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "10") int size) throws Exception {
+        return jsonUtil.toJson(service.getAll(page, size));
     }
 
     @GetMapping("/{id}")
@@ -58,7 +52,6 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<String> createProduct(@RequestBody String json) throws Exception {
         ProductDTO dto = jsonUtil.fromJson(json, ProductDTO.class);
-        validate(dto);
         Product product = mapperUtil.toEntity(dto);
         Product saved = service.create(product);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -68,7 +61,6 @@ public class ProductController {
     @PutMapping("/{id}")
     public String updateProduct(@PathVariable Long id, @RequestBody String json) throws Exception {
         ProductDTO dto = jsonUtil.fromJson(json, ProductDTO.class);
-        validate(dto);
         Product product = mapperUtil.toEntity(dto);
         Product updated = service.update(id, product);
         return jsonUtil.toJson(mapperUtil.toDto(updated));
@@ -80,10 +72,4 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    private <T> void validate(T dto) {
-        Set<ConstraintViolation<T>> violations = validator.validate(dto);
-        if (!violations.isEmpty()) {
-            throw new BadRequestException(violations.iterator().next().getMessage());
-        }
-    }
 }
